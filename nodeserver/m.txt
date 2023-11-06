@@ -1,0 +1,129 @@
+this is the index.html code
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <script defer src="http://localhost:8000/socket.io/socket.io.js"></script>
+  <script defer src="JS/client.js"></script>
+
+  <style>
+    body {
+      height: 50vh;
+      background-image: -o-linear-gradient(
+        rgb(211, 183, 183, rgb(232, 137, 153))
+      );
+    }
+    .container {
+      overflow-y: scroll;
+      padding: 10px;
+      margin: auto;
+      border: 1px solid red;
+      height: 60vh;
+      width: 955px;
+    }
+    .message {
+      font-size: 20px;
+      width: max-content;
+      margin: 4px;
+      border-top-right-radius: 20px;
+      border-bottom-left-radius: 20px;
+
+      padding: 4px;
+      background-color: lightseagreen;
+    }
+    .left {
+      float: left;
+      clear: both;
+    }
+    .right {
+      float: right;
+      clear: both;
+    }
+    #send-container {
+      text-align: center;
+      max-width: 985px;
+      display: block;
+      margin: auto;
+    }
+    #messsageInp {
+      width: 92%;
+      margin: 2px;
+    }
+  </style>
+  <body>
+    <div class="container">
+      <div class="message right">harry : hey how are you</div>
+      <div class="message left">mukul : good how are you</div>
+    </div>
+    <div class="send">
+      <form action="#" id="send-container">
+        <input type="text" name="messageInp" id="messageInp" />
+        <button class="btn" type="submit">Send</button>
+      </form>
+    </div>
+  </body>
+</html>
+   
+
+
+this is client.js code 
+const socket = io-client("http://localhost:8000");
+const form = document.getElementById("send-container");
+const messageInput = document.getElementById("messageInp");
+const messageContainer = document.querySelector(".container");
+
+const append = (message, position) => {
+  const messageElement = document.createElement("div");
+  messageElement.innerText = message;
+  messageElement.classList.add("message");
+  messageElement.classList.add(position);
+  messageContainer.append(messageElement ) 
+
+};
+console.log(append)
+
+const name = prompt("Enter your name");
+socket.emit("new-user-joined", name);
+socket.on("user-joined", name => {
+    append(`${name} joined the chat`, "left");
+    
+});
+
+ form.addEventListener("submit", (e)=>{
+  e.preventDefault();
+  const message = messageInput.value;
+  append(`you : ${message}`)
+  socket.emit('send',message)
+  messageInput.value='';
+ })
+socket.on("receive", data => {
+  append(`${data.name} : ${data.message}`, "right");
+});
+
+
+
+this is index.js code 
+const io = require("socket.io-client")(8000);
+const cors = require("cors");
+
+
+io.httpServer.on("request", cors());
+
+const users = {};
+
+io.on("connection", (socket) => {
+  socket.on("new-user-joined", (name) => {
+    console.log('new user is joined', name)
+    users[socket.id] = name;
+    socket.broadcast.emit("user-joined", name);
+  });
+  socket.on("send", (message) => {
+    socket.broadcast.emit("receive", { message: message, name: users[socket.id] });
+  });
+});
+
+
+i cant be able to use the chats and not be able to send or recieve messages i cant be able to use it please correct this 
