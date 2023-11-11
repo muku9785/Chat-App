@@ -1,4 +1,4 @@
-const socket = io("https://localhost:8000");
+const socket = io("http://localhost:8000");
 const form = document.getElementById("send-container");
 const messageInput = document.getElementById("messageInp");
 const messageContainer = document.querySelector(".container");
@@ -11,11 +11,12 @@ const append = (message, position) => {
   messageContainer.appendChild(messageElement);
 };
 
-const name = prompt("Enter your name");
-socket.emit("new-user-joined", name);
+const userName = prompt("Enter your name");
+append(` ${userName} joined the chat`, "right");
+socket.emit("new-user-joined", userName);
 
-socket.on("user-joined", (name) => {
-  append(`${name} joined the chat`, "left");
+socket.on("new-user-joined", (userName) => {  
+  append(`${userName} joined the chat`, "left");
 });
 
 form.addEventListener("submit", (e) => {
@@ -27,9 +28,9 @@ form.addEventListener("submit", (e) => {
 });
 
 socket.on("receive", (data) => {
-  append(`${data.name} : ${data.message}`, "left");
+  append(`${data.userName} : ${data.message}`, "left");
 });
 
-socket.on("receive", (data) => {
-  append(`${data.name} : ${data.message}`, "left");
+socket.on("send", (data) => {
+  append(`${data.userName} : ${data.message}`, "right");
 });
